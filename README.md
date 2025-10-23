@@ -1,19 +1,25 @@
-Node.js project
+Raportti
 
-Server running on port 3000
+Tehtyjä osioita:
 
-Shows a welcome message: "Welcome to my REST API!"
+REST API toteutettu: GET, POST, PUT, DELETE
 
-Using Nodemon, ESLint, and Prettier
+Kaikki reitit testattu Postmanilla
 
-Project REST API
+Metodien, tilakoodien ja palvelimen vastausten ymmärtäminen
 
-Using Node.js to create "REST API"
+extra feature "/hello" lisätty
 
-Practiting using GET, POST, PUT, DELETE requests and also JSON data
+Git-repositorio luotu, branch node-start käytetty
 
-Added an extra feature (/hello) for test
+Mahdolliset ongelmat:
 
-Understanding methods, status codes, and server responses
+PUT ja DELETE reitit ei toiminnut oikein, mutta korjattu
+
+POST pyyntö id piti olla uniikki
+
+Kuvakaappaukset:
+
+Liitteenä
 
 Author: Younes
