@@ -1,0 +1,16 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    title= title
+  body
+    h1= title
+    p= message
+    if media && media.length
+      ul
+        each item in media
+          li
+            h3= item.title
+            img(src=item.filename ? '/media/' + item.filename : '', alt=item.title, width="150")
+    else
+      p No media items available.

@@ -1,90 +1,110 @@
-// src/index.js
-import http from 'http';
-
+import express from 'express';
 const hostname = '127.0.0.1';
+const app = express();
 const port = 3000;
 
-// sample in-memory data
-let items = [
-  {id: 1, name: 'couch'},
-  {id: 2, name: 'table'},
-  {id: 3, name: 'chair'},
+// Set Pug as template engine
+app.set('views', './src/views');
+app.set('view engine', 'pug');
+
+// Serve static files from the media folder
+app.use('/media', express.static('media'));
+
+// Middleware to parse JSON bodies (needed for POST later)
+app.use(express.json());
+
+// mock data
+const media = [
+  {
+    media_id: 1,
+    filename: 'couch.jpg',
+    title: 'Couch',
+    description: 'Nice couch',
+    user_id: 101,
+    media_type: 'image/jpeg',
+    created_at: '2025-10-01T12:00:00Z',
+  },
+  {
+    media_id: 2,
+    filename: 'table.jpg',
+    title: 'Table',
+    description: 'Dining table',
+    user_id: 102,
+    media_type: 'image/jpeg',
+    created_at: '2025-10-02T12:00:00Z',
+  },
+  {
+    media_id: 3,
+    filename: 'chair.jpg',
+    title: 'Chair',
+    description: 'Wooden chair',
+    user_id: 103,
+    media_type: 'image/jpeg',
+    created_at: '2025-10-03T12:00:00Z',
+  },
 ];
 
-const server = http.createServer((req, res) => {
-  // GET /items -> return list of items
-  if (req.url === '/items' && req.method === 'GET') {
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify(items));
-  }
+// GET / -> landing page using Pug
+app.get('/', (req, res) => {
+  res.render('index', {
+    title: 'My Express API',
+    message: 'Welcome to my simple REST API with Express!',
+    media: media,
+  });
+});
 
-  // POST /items -> add new item
-  else if (req.url === '/items' && req.method === 'POST') {
-    let body = '';
-    req.on('data', (chunk) => {
-      body += chunk.toString();
-    });
-    req.on('end', () => {
-      const newItem = JSON.parse(body);
-      items.push(newItem);
-      res.writeHead(201, {'Content-Type': 'application/json'});
-      res.end(JSON.stringify({message: 'Item added', items}));
-    });
-  }
+// GET /items -> return list of items in JSON
+app.get('/api/media', (req, res) => {
+  res.status(200).json(media);
+});
 
-  // DELETE /items/:id -> remove item (dummy)
-  else if (req.url.startsWith('/items/') && req.method === 'DELETE') {
-    const parts = req.url.split('/');
-    const idStr = parts[2]; // id from /items/<id>
-    const id = Number(idStr);
-
-    const idx = items.findIndex((it) => it.id === id);
-    if (idx === -1) {
-      res.writeHead(404, {'Content-Type': 'application/json'});
-      res.end(JSON.stringify({error: 'Item not found'}));
-    } else {
-      items.splice(idx, 1);
-      res.writeHead(204, {'Content-Type': 'application/json'});
-      res.end();
-    }
-  }
-
-  // PUT /items/:id -> modify item
-  else if (req.url.startsWith('/items/') && req.method === 'PUT') {
-    const parts = req.url.split('/');
-    const id = Number(parts[2]);
-
-    const idx = items.findIndex((it) => it.id === id);
-    if (idx === -1) {
-      res.writeHead(404, {'Content-Type': 'application/json'});
-      res.end(JSON.stringify({error: 'Item not found'}));
-    } else {
-      let body = '';
-      req.on('data', (chunk) => {
-        body += chunk.toString();
-      });
-      req.on('end', () => {
-        const updatedData = JSON.parse(body);
-        items[idx] = {...items[idx], ...updatedData}; // merge updates
-        res.writeHead(200, {'Content-Type': 'application/json'});
-        res.end(JSON.stringify({message: 'Item updated', item: items[idx]}));
-      });
-    }
-  }
-
-  // GET /hello -> simple welcome message
-  else if (req.url === '/hello' && req.method === 'GET') {
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify({message: 'Hello and Welcome!'}));
-  }
-
-  // fallback for other routes
-  else {
-    res.writeHead(404, {'Content-Type': 'text/plain'});
-    res.end('Not Found');
+// GET /api/media/:id -> return one media item
+app.get('/api/media/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const item = media.find((m) => m.media_id === id);
+  if (!item) {
+    res.status(404).json({error: 'Media not found'});
+  } else {
+    res.status(200).json(item);
   }
 });
 
-server.listen(port, hostname, () => {
+// POST /api/media -> add new media
+app.post('/api/media', (req, res) => {
+  const newMedia = {
+    media_id: Date.now(),
+    created_at: new Date().toISOString(),
+    ...req.body,
+  };
+  media.push(newMedia);
+  res.status(201).json({message: 'Media added', media: newMedia});
+});
+
+// PUT /api/media/:id -> update existing media
+app.put('/api/media/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const idx = media.findIndex((m) => m.media_id === id);
+  if (idx === -1) {
+    res.status(404).json({error: 'Media not found'});
+  } else {
+    media[idx] = {...media[idx], ...req.body};
+    res.status(200).json({message: 'Media updated', media: media[idx]});
+  }
+});
+
+// DELETE /api/media/:id -> delete media
+app.delete('/api/media/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const idx = media.findIndex((m) => m.media_id === id);
+  if (idx === -1) {
+    res.status(404).json({error: 'Media not found'});
+  } else {
+    media.splice(idx, 1);
+    res.status(204).send();
+  }
+});
+
+// Start server
+app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });

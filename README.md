@@ -23,3 +23,19 @@ Kuvakaappaukset:
 Liitteenä
 
 Author: Younes
+
+Assignment 2 – Express framework
+
+REST API toteutettu käytämällä Express ja Pug.
+
+Sain etusivun toimimaan Pug:illa ja voin avata sen selaimessa.
+
+Tein media:lle API-reitit: GET, POST, PUT ja DELETE.
+
+Käytin mock data medialistalle ja lisäsin kuvat media kansioon.
+
+minulla oli ongelmia reittien kanssa. tuli virhe "Cannot GET /api/media", mutta korjasin sen kun käynnistin palvelimen oikeasta kansiosta.
+
+Nyt kaikki toimii Postmanissa.
+
+Author: Younes
